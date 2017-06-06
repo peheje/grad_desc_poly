@@ -1,8 +1,8 @@
 // Window size
-const width = 800;
+const width = 600;
 const height = 600;
 const fps = 0;
-const startBeta = 1;
+const startBeta = 0.1;
 
 // Polynomial coefficients
 let betas = [startBeta, startBeta];
@@ -87,10 +87,10 @@ function gradientDescent() {
     for (let i = 0; i < data.length; i++) {
         let x = data[i].x;
         let y = data[i].y;
-        let guess = poly(x);
-        let error = y - guess;
+        let error = -1;
 
         for (let j = 0; j < betas.length; j++) {
+            error = y - poly(x);
             betas[j] += Math.pow(x, j) * error * learningRate;  // Derivative of polynomial
         }
 
