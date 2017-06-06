@@ -158,7 +158,9 @@ function resetBetas(n) {
 
 function setup() {
     frameRate(fps);
-    createCanvas(width + 1, height + 1);
+    let canvas = createCanvas(width + 1, height + 1);
+    canvas.parent('sketch-holder');
+    
     sys = CoordinateSystem();
 
     // Buttons and inputs
