@@ -4,11 +4,18 @@ const height = 600;
 const fps = 0;
 const startBeta = 0.1;
 
+// 0: Stochastic gradient descent, 1: Momentum
+let descentStrategy = 0;
+
 // Polynomial coefficients
-let betas = [startBeta, startBeta];
+let betas = [];
 let startOrder = 2;
 let learningRate = 1e-3;
-let drawStep = 0.001;
+let drawStep = 0.01;
+
+// For momentum
+let friction = 0.9;
+let velocities = [];
 
 // Datapoints
 let data = [];
@@ -89,16 +96,20 @@ function gradientDescent() {
         let y = data[i].y;
         let error = -1;
 
+        // Math.pow(x, j) will be the gradient for the j'th coefficient:
+        // D(b0 + b1*x + b2*x*x, b0) = 1, D(b0 + b1*x + b2*x*x, b1) = x, D(b0 + b1*x + b2*x*x, b2) = x^2
+
         for (let j = 0; j < betas.length; j++) {
             error = y - poly(x);
-            betas[j] += Math.pow(x, j) * error * learningRate;  // Derivative of polynomial
+            if (descentStrategy === 0) {
+                // Vanilla stochastic gradient descent
+                betas[j] += Math.pow(x, j) * error * learningRate;
+            } else {
+                // Momentum
+                velocities[j] = velocities[j] * friction + learningRate * Math.pow(x, j) * error;
+                betas[j] += velocities[j];
+            }
         }
-
-        /*
-        betas[0] += (1) * error * learningRate;       // D(b0 + b1*x + b2*x*x, b0) = 1
-        betas[1] += (x) * error * learningRate;       // D(b0 + b1*x + b2*x*x, b1) = x
-        betas[2] += (x * x) * error * learningRate;   // D(b0 + b1*x + b2*x*x, b2) = x^2
-        */
     }
     drawPoints();
     drawPoly();
@@ -127,8 +138,10 @@ function drawPoly() {
 
 function resetBetas(n) {
     betas = [];
+    velocities = [];
     for (let i = 0; i < n; i++) {
         betas.push(startBeta);
+        velocities.push(0);
     }
 }
 
@@ -136,18 +149,36 @@ function setup() {
     frameRate(fps);
     createCanvas(width + 1, height + 1);
     sys = CoordinateSystem();
-    orderSlider = createSlider(1, 10, startOrder);
+
+    // Buttons and inputs
+    orderInput = createInput();
+    orderInput.value(startOrder);
     lrInput = createInput();
     lrInput.value(learningRate);
+    gradInput = createInput();
+    gradInput.value(0);
+    frictionInput = createInput();
+    frictionInput.value(friction);
 
+    resetBetas(startOrder);
     setInterval(() => {
-        let n = orderSlider.value();
+        let n = parseInt(orderInput.value());
         if (betas.length !== n) {
             resetBetas(n);
         }
         let lr = parseFloat(lrInput.value());
         if (lr !== learningRate) {
             learningRate = lr;
+            resetBetas(n);
+        }
+        let st = parseInt(gradInput.value());
+        if (st !== descentStrategy) {
+            descentStrategy = st;
+            resetBetas(n);
+        }
+        let mu = parseFloat(frictionInput.value());
+        if (mu !== friction) {
+            friction = mu;
             resetBetas(n);
         }
     }, 1000);
