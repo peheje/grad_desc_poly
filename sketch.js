@@ -8,7 +8,7 @@ const startBeta = 1;
 let betas = [startBeta, startBeta];
 let startOrder = 2;
 let learningRate = 1e-3;
-let drawStep = 0.0005;
+let drawStep = 0.001;
 
 // Datapoints
 let data = [];
