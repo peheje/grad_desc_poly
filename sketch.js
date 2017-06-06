@@ -96,18 +96,22 @@ function gradientDescent() {
         let y = data[i].y;
         let error = -1;
 
-        // Math.pow(x, j) will be the gradient for the j'th coefficient:
+        // pow(x, j) will be the gradient for the j'th coefficient:
         // D(b0 + b1*x + b2*x*x, b0) = 1, D(b0 + b1*x + b2*x*x, b1) = x, D(b0 + b1*x + b2*x*x, b2) = x^2
 
         for (let j = 0; j < betas.length; j++) {
             error = y - poly(x);
-            if (descentStrategy === 0) {
-                // Vanilla stochastic gradient descent
-                betas[j] += Math.pow(x, j) * error * learningRate;
-            } else {
-                // Momentum
-                velocities[j] = velocities[j] * friction + learningRate * Math.pow(x, j) * error;
-                betas[j] += velocities[j];
+
+            switch (descentStrategy) {
+                case 1:
+                    // Momentum
+                    velocities[j] = velocities[j] * friction + learningRate * pow(x, j) * error;
+                    betas[j] += velocities[j];
+                    break;
+                default:
+                    // Vanilla stochastic gradient descent
+                    betas[j] += pow(x, j) * error * learningRate;
+                    break;
             }
         }
     }
