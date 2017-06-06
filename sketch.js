@@ -4,12 +4,12 @@ const height = 600;
 const fps = 0;
 const startBeta = 0.1;
 
-// 0: Stochastic gradient descent, 1: Momentum
-let descentStrategy = 0;
+// 0: Stochastic gradient descent, 1: Momentum, 2: Nesterov
+let descentStrategy = 2;
 
 // Polynomial coefficients
 let betas = [];
-let startOrder = 2;
+let startOrder = 1;
 let learningRate = 1e-3;
 let drawStep = 0.01;
 
@@ -27,8 +27,8 @@ function CoordinateSystem() {
 
     let xtick = null;
     let ytick = null;
-    let xtickNum = 20;
-    let ytickNum = 20;
+    let xtickNum = 10;
+    let ytickNum = 10;
 
     function drawGrid() {
         // Cross
@@ -108,6 +108,13 @@ function gradientDescent() {
                     velocities[j] = velocities[j] * friction + learningRate * pow(x, j) * error;
                     betas[j] += velocities[j];
                     break;
+                case 2:
+                    // Nesterov
+                    let xAhead = x + friction * velocities[j];
+                    let dxAhead = pow(xAhead, j);
+                    velocities[j] = velocities[j] * friction + learningRate * dxAhead * error;
+                    betas[j] += velocities[j];
+                    break;
                 default:
                     // Vanilla stochastic gradient descent
                     betas[j] += pow(x, j) * error * learningRate;
@@ -159,8 +166,8 @@ function setup() {
     orderInput.value(startOrder);
     lrInput = createInput();
     lrInput.value(learningRate);
-    gradInput = createInput();
-    gradInput.value(0);
+    gradDescInput = createInput();
+    gradDescInput.value(descentStrategy);
     frictionInput = createInput();
     frictionInput.value(friction);
 
@@ -175,7 +182,7 @@ function setup() {
             learningRate = lr;
             resetBetas(n);
         }
-        let st = parseInt(gradInput.value());
+        let st = parseInt(gradDescInput.value());
         if (st !== descentStrategy) {
             descentStrategy = st;
             resetBetas(n);
