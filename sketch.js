@@ -164,14 +164,12 @@ function setup() {
     sys = CoordinateSystem();
 
     // Buttons and inputs
-    orderInput = createInput();
-    orderInput.value(startOrder);
-    lrInput = createInput();
-    lrInput.value(learningRate);
-    gradDescInput = createInput();
-    gradDescInput.value(descentStrategy);
-    frictionInput = createInput();
-    frictionInput.value(friction);
+    orderInput = createInput(startOrder, "number");
+    lrInput = createInput(learningRate, "number", 0.01);
+    lrInput.elt.setAttribute("step", "0.0001");
+    gradDescInput = createInput(descentStrategy, "number");
+    frictionInput = createInput(friction, "number");
+    frictionInput.elt.setAttribute("step", "0.01");
 
     resetBetas(startOrder);
     setInterval(() => {
